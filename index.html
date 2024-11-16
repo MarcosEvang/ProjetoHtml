@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Cachorros e Donos</title>
+    <style>
+      tbody tr:nth-child(odd) {
+        background-color: white;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: rgb(172, 172, 172);
+      }
+
+      form {
+        border: 1px solid gray;
+        padding: 10px;
+        margin: 50px;
+      }
+
+      #formulario {
+        display: none;
+      }
+
+      button {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lista de Cachorros e Donos</h1>
+    <button onclick="exibirFormulario()">Adicionar um cachorro</button>
+ 
+    
+    <form id="formulario" onsubmit="adicionarCachorro(event)">
+      <label for="cachorro">Cachorro</label>
+      <input id="cachorro" name="cachorro" type="text" required />
+      <br />
+
+      <label for="dono">Dono</label>
+      <input id="dono" name="dono" type="text" required />
+      <br />
+
+      <label for="telefone">Telefone</label>
+      <input id="telefone" name="telefone" type="tel" required />
+      <br />
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required />
+      <br />
+
+      <label for="imagem">Imagem</label>
+      <input id="imagem" name="imagem" type="text" required />
+      <br />
+
+      <button type="submit">Adicionar</button>
+      <button type="button" onclick="ocultarFormulario()">Cancelar</button>
+    </form>
+
+    <!-- Tabela para exibir lista de cachorros -->
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Imagem</th>
+          <th>Cachorro</th>
+          <th>Dono</th>
+          <th>Telefone</th>
+          <th>Email</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaCachorros">
+        <!-- Dados da tabela vão aqui -->
+      </tbody>
+    </table>
+
+    <script>
+      let listaCachorros = []; // Lista local para armazenar dados do cachorro
+
+      // Função para exibir o formulário
+      function exibirFormulario() {
+        document.getElementById("formulario").style.display = "block";
+      }
+
+      // Função para ocultar o formulário
+      function ocultarFormulario() {
+        document.getElementById("formulario").style.display = "none";
+      }
+
+      // Função para adicionar um cachorro à lista
+      function adicionarCachorro(event) {
+        event.preventDefault(); // Prevenir o comportamento padrão do formulário
+
+        const cachorro = {
+          nome: document.getElementById("cachorro").value,
+          dono: document.getElementById("dono").value,
+          telefone: document.getElementById("telefone").value,
+          email: document.getElementById("email").value,
+          imagem: document.getElementById("imagem").value,
+        };
+
+        listaCachorros.push(cachorro); // Adiciona o cachorro na lista
+        atualizarTabela(); // Atualiza a tabela
+        ocultarFormulario(); // Esconde o formulário após adicionar
+        document.getElementById("formulario").reset(); // Reseta os campos do formulário
+      }
+
+      // Função para atualizar a tabela com os dados
+      function atualizarTabela() {
+        const tabela = document.getElementById("tabelaCachorros");
+        tabela.innerHTML = ""; // Limpa a tabela antes de adicionar os novos dados
+
+        listaCachorros.forEach((cachorro, index) => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td><img src="${cachorro.imagem}" alt="${cachorro.nome}" width="50" height="50" /></td>
+            <td>${cachorro.nome}</td>
+            <td>${cachorro.dono}</td>
+            <td>${cachorro.telefone}</td>
+            <td>${cachorro.email}</td>
+            <td>
+              <button onclick="editarCachorro(${index})">Editar</button>
+              <button onclick="excluirCachorro(${index})">Excluir</button>
+            </td>
+          `;
+          tabela.appendChild(row);
+        });
+      }
+
+      // Função para editar cachorro
+      function editarCachorro(index) {
+        const cachorro = listaCachorros[index];
+        document.getElementById("cachorro").value = cachorro.nome;
+        document.getElementById("dono").value = cachorro.dono;
+        document.getElementById("telefone").value = cachorro.telefone;
+        document.getElementById("email").value = cachorro.email;
+        document.getElementById("imagem").value = cachorro.imagem;
+        exibirFormulario();
+        listaCachorros.splice(index, 1); // Remove o cachorro da lista para edição
+      }
+
+      // Função para excluir cachorro
+      function excluirCachorro(index) {
+        listaCachorros.splice(index, 1); // Remove o cachorro da lista
+        atualizarTabela(); // Atualiza a tabela após exclusão
+      }
+
+      // Função para carregar dados da API
+      function carregarCachorrosAPI() {
+        fetch("https://run.mocky.io/v3/404a6d49-8763-45d3-9ff0-990f51fb2eed")
+          .then((response) => response.json())
+          .then((data) => {
+            listaCachorros = data; // Atualiza a lista com dados da API
+            atualizarTabela(); // Atualiza a tabela com os novos dados
+          })
+          .catch((error) => {
+            console.error("Erro ao carregar dados da API:", error);
+          });
+      }
+
+      // Carregar dados da API ao carregar a página
+      window.onload = carregarCachorrosAPI;
+    </script>
+  </body>
+</html>
